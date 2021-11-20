@@ -1,0 +1,1 @@
+{"errorMessage": "'operation'", "errorType": "KeyError", "stackTrace": ["  File \"/var/task/LambdaFunctionOverHttps.py\", line 18, in handler\n    operation = event['operation']\n"]}
