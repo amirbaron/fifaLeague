@@ -4,11 +4,30 @@ import Standing from "./components/Standings";
 
 const App = () => {
   const [standing, setStanding] = useState([]);
+  const [round, setRound] = useState(0);
   useEffect(() => {
-    fetchData(setStanding);
+    fetchTeamsData(setStanding);
   }, []);
+  useEffect(() => {
+
+  }, [round]);
+
+  const onNextRound = () => {
+    const url = "http://example.com";
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify({ currentUiRound: round }),
+    })
+      .then((response) => response.json())
+      .then((jsonRes) => {
+        console.log("json_res: ", jsonRes);
+        setRound(round+1);
+      })
+      .catch(() => console.log("Error"));
+  };
+
   const id = 2021;
-  const fetchData = (setStanding) => {
+  const fetchTeamsData = (setStanding) => {
     const Token = "fe5361a29897453384f17447c82c205c",
       URL =
         "https://api.football-data.org/v2/competitions/" + id + "/standings";
@@ -48,6 +67,12 @@ const App = () => {
         setStanding([...rows]);
       });
   };
+  return FootbalApp({ standing, round, onNextRound });
+};
+
+
+const FootbalApp = (props) => {
+  const { standing, round, onNextRound } = { ...props };
   let table;
 
   if (standing.length > 0) {
@@ -95,6 +120,11 @@ const App = () => {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="play-next-round">
+          <button onClick={onNextRound}>
+            Simluate matches for round {round}
+          </button>
         </div>
       </div>
     </div>
