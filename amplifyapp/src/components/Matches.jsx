@@ -17,18 +17,33 @@ class Match extends Component {
 
   render() {
     let result = 0;
-    if (this.props.result == 'home'){
+    if (this.props.result === 'home'){
       result = 1;
     }
-    else if (this.props.result == 'away'){
+    else if (this.props.result === 'away'){
       result = 2;
+    }else if (this.props.result === 'draw'){
+      result = 0;
+    }else{
+      result = "-";
+    }
+    let homeTeamNameClass = "match-team-name";
+    let awayTeamNameClass = "match-team-name";
+    if (result == 1){
+      homeTeamNameClass += " bold"
+    }
+    if (result == 2){
+      awayTeamNameClass += " bold"
     }
     return (
       <div className="match-container">
+        <div className="match-round">
+          Round {this.props.round}
+        </div>
         <div className="badge">
           <img src={this.props.homeTeamCrestUrl} alt={this.props.homeTeamName} />
         </div>
-        <div className="match-team-name">
+        <div className={homeTeamNameClass}>
           {this.props.homeTeamName}
         </div>
         <div className="match-score">
@@ -37,7 +52,7 @@ class Match extends Component {
         <div className="badge">
           <img src={this.props.awayTeamCrestUrl} alt={this.props.awayTeamName} />
         </div>
-        <div className="match-team-name">
+        <div className={awayTeamNameClass}>
           {this.props.awayTeamName}
         </div>
       </div>

@@ -5,8 +5,7 @@ import Match from "./components/Matches";
 const App = () => {
   const [standing, setStanding] = useState([]);
   const [matches, setMatches] = useState([]);
-
-  const [round, setRound] = useState(0);
+  const [round, setRound] = useState(-1);
   useEffect(() => {
     fetchTeamsData(setStanding);
   }, [round]);
@@ -15,17 +14,24 @@ const App = () => {
   }, [round]);
 
   const onNextRound = () => {
-    const url = "http://example.com";
-    fetch(url, {
-      method: "POST",
-      body: JSON.stringify({ currentUiRound: round }),
-    })
+    const URL =
+      "https://joybho7ii7.execute-api.eu-central-1.amazonaws.com/Prod/standing?season=1&op=next_round";
+    fetch(URL, {})
       .then((response) => response.json())
-      .then((jsonRes) => {
-        console.log("json_res: ", jsonRes);
+      .then((response) => {
         setRound(round + 1);
       })
-      .catch(() => console.log("Error"));
+      .catch(() => alert("Failed to do next round. Maybe season is over?"));
+  };
+  const onClearMatches = () => {
+    const URL =
+      "https://joybho7ii7.execute-api.eu-central-1.amazonaws.com/Prod/standing?season=1&op=clear_matches";
+    fetch(URL, {})
+      .catch(() => alert("Failed to clear table"))
+      .then(() => {
+        fetchTeamsData(setStanding);
+        fetchMatches(setMatches);
+      });
   };
 
   const fetchMatches = (setMatches) => {
@@ -50,9 +56,11 @@ const App = () => {
             awayTeamCrestUrl,
             homeTeamUser,
             awayTeamUser,
+            round,
           } = item;
 
           return {
+            round,
             matchId,
             season,
             result,
@@ -102,16 +110,19 @@ const App = () => {
             team: name,
             badge: crestUrl,
             user: user,
+            stars,
           };
         });
         setStanding([...rows]);
       });
   };
-  return FootbalApp({ standing, matches, round, onNextRound });
+  return FootbalApp({ standing, matches, round, onNextRound, onClearMatches });
 };
 
 const FootbalApp = (props) => {
-  const { standing, round, onNextRound, matches } = { ...props };
+  const { standing, round, onNextRound, onClearMatches, matches } = {
+    ...props,
+  };
   let table;
 
   if (standing.length > 0) {
@@ -127,7 +138,8 @@ const FootbalApp = (props) => {
           <th className="team" colSpan="2">
             Team
           </th>
-          <th className="team">User</th>
+          <th className="player">User</th>
+          <th className="stars">Stars</th>
           <th className="played">Played</th>
           <th className="won">Won</th>
           <th className="draw">Draw</th>
@@ -157,15 +169,24 @@ const FootbalApp = (props) => {
                   draw={standing.draw}
                   lost={standing.lost}
                   points={standing.points}
+                  stars={standing.stars}
                 ></Standing>
               ))}
             </tbody>
           </table>
         </div>
-        <div className="play-next-round">
-          <button className="play-next-round-button" onClick={onNextRound}>
-            Simluate matches for round {round}
-          </button>
+
+        <div className="control-buttons">
+          <div className="play-next-round">
+            <button className="play-next-round-button" onClick={onNextRound}>
+              Simluate matches for round {round + 2}
+            </button>
+          </div>
+          <div className="clear-matches">
+            <button className="clear-matches-button" onClick={onClearMatches}>
+              Restart simulation
+            </button>
+          </div>
         </div>
         <div className="matches-container">
           <h2 reults>Results</h2>
