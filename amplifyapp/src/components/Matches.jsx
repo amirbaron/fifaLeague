@@ -38,7 +38,7 @@ class Match extends Component {
     return (
       <div className="match-container">
         <div className="match-round">
-          Round {this.props.round}
+          Round {this.props.round+1}
         </div>
         <div className="badge">
           <img src={this.props.homeTeamCrestUrl} alt={this.props.homeTeamName} />

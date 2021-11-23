@@ -179,7 +179,7 @@ const FootbalApp = (props) => {
         <div className="control-buttons">
           <div className="play-next-round">
             <button className="play-next-round-button" onClick={onNextRound}>
-              Simluate matches for round {round + 2}
+              Simluate next match
             </button>
           </div>
           <div className="clear-matches">
