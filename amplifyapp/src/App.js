@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import Standing from "./components/Standings";
-
+import Match from "./components/Matches";
 const App = () => {
   const [standing, setStanding] = useState([]);
+  const [matches, setMatches] = useState([]);
+
   const [round, setRound] = useState(0);
   useEffect(() => {
     fetchTeamsData(setStanding);
-  }, []);
+  }, [round]);
   useEffect(() => {
-
+    fetchMatches(setMatches);
   }, [round]);
 
   const onNextRound = () => {
@@ -21,58 +23,95 @@ const App = () => {
       .then((response) => response.json())
       .then((jsonRes) => {
         console.log("json_res: ", jsonRes);
-        setRound(round+1);
+        setRound(round + 1);
       })
       .catch(() => console.log("Error"));
   };
 
-  const id = 2021;
-  const fetchTeamsData = (setStanding) => {
-    const Token = "fe5361a29897453384f17447c82c205c",
-      URL =
-        "https://api.football-data.org/v2/competitions/" + id + "/standings";
+  const fetchMatches = (setMatches) => {
+    const URL =
+      "https://joybho7ii7.execute-api.eu-central-1.amazonaws.com/Prod/standing?season=1&op=matches";
 
-    fetch(URL, { headers: { "X-Auth-Token": Token } })
+    fetch(URL, {})
       .then((response) => response.json())
       .then((response) => {
-        const rows = [];
-        response.standings[0].table.map((item, index) => {
+        const rows = response.map((item, index) => {
           const {
-            position,
-            playedGames,
-            won,
-            draw,
-            lost,
-            goalsFor,
-            goalsAgainst,
-            goalDifference,
-            points,
-            team,
+            matchId,
+            season,
+            result,
+            awayTeamId,
+            homeTeamId,
+            homeTeamStars,
+            awayTeamStars,
+            homeTeamName,
+            awayTeamName,
+            homeTeamCrestUrl,
+            awayTeamCrestUrl,
+            homeTeamUser,
+            awayTeamUser,
           } = item;
 
-          return rows.push({
-            position: position,
-            playedGames: playedGames,
-            won: won,
-            draw: draw,
-            lost: lost,
-            goalsFor: goalsFor,
-            goalsAgainst: goalsAgainst,
-            goalDifference: goalDifference,
+          return {
+            matchId,
+            season,
+            result,
+            awayTeamId,
+            homeTeamId,
+            homeTeamStars,
+            awayTeamStars,
+            homeTeamName,
+            awayTeamName,
+            homeTeamCrestUrl,
+            awayTeamCrestUrl,
+            homeTeamUser,
+            awayTeamUser,
+          };
+        });
+        setMatches([...rows]);
+      });
+  };
+
+  const fetchTeamsData = (setStanding) => {
+    const URL =
+      "https://joybho7ii7.execute-api.eu-central-1.amazonaws.com/Prod/standing?season=1&op=standing";
+
+    fetch(URL, {})
+      .then((response) => response.json())
+      .then((response) => {
+        const rows = response.map((item, index) => {
+          const {
+            name,
+            wins,
+            draws,
+            loses,
+            stars,
+            user,
+            games,
+            points,
+            crestUrl,
+          } = item;
+
+          return {
+            position: index + 1,
+            playedGames: games,
+            won: wins,
+            draw: draws,
+            lost: loses,
             points: points,
-            team: team.name,
-            badge: team.crestUrl,
-          });
+            team: name,
+            badge: crestUrl,
+            user: user,
+          };
         });
         setStanding([...rows]);
       });
   };
-  return FootbalApp({ standing, round, onNextRound });
+  return FootbalApp({ standing, matches, round, onNextRound });
 };
 
-
 const FootbalApp = (props) => {
-  const { standing, round, onNextRound } = { ...props };
+  const { standing, round, onNextRound, matches } = { ...props };
   let table;
 
   if (standing.length > 0) {
@@ -80,7 +119,7 @@ const FootbalApp = (props) => {
       <thead>
         <tr>
           <td colSpan="9">
-            <h3>Premier league</h3>
+            <h2>לה ליגה</h2>
           </td>
         </tr>
         <tr>
@@ -88,6 +127,7 @@ const FootbalApp = (props) => {
           <th className="team" colSpan="2">
             Team
           </th>
+          <th className="team">User</th>
           <th className="played">Played</th>
           <th className="won">Won</th>
           <th className="draw">Draw</th>
@@ -111,6 +151,7 @@ const FootbalApp = (props) => {
                   position={standing.position}
                   badge={standing.badge}
                   team={standing.team}
+                  user={standing.user}
                   played={standing.playedGames}
                   won={standing.won}
                   draw={standing.draw}
@@ -122,9 +163,15 @@ const FootbalApp = (props) => {
           </table>
         </div>
         <div className="play-next-round">
-          <button onClick={onNextRound}>
+          <button className="play-next-round-button" onClick={onNextRound}>
             Simluate matches for round {round}
           </button>
+        </div>
+        <div className="matches-container">
+          <h2 reults>Results</h2>
+          {matches.map((match) => (
+            <Match key={match.id} {...match}></Match>
+          ))}
         </div>
       </div>
     </div>

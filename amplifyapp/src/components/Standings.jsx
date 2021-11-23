@@ -11,6 +11,7 @@ class Standing extends Component {
           </div>
         </td>
         <td className="text-left">{this.props.team}</td>
+        <td>{this.props.user}</td>
         <td>{this.props.played}</td>
         <td>{this.props.won}</td>
         <td>{this.props.draw}</td>
